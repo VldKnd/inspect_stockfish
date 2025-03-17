@@ -1,14 +1,5 @@
-# ## Load current fen
-# ## Make a move
-# ## Evaluate if lost
-# ## If not make a move
-# ## Evaluate if won
-# ## If not save FEN
-# from stockfish import Stockfish
-
-# def move(chess_move: str):
-
 #!/usr/bin/env python
+import textwrap
 import logging
 import os
 import typing
@@ -109,7 +100,16 @@ def print_decision(decision: typing.Literal["white", "black", "stale", "illegal"
 def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description="Apply a chess move using the Stockfish Python wrapper. Current game state is saved in chess_positions_as_fen.txt file."
+        description=textwrap.dedent("""
+            Apply a chess move playing as white using the Stockfish Python wrapper.
+            Current game state is saved in chess_positions_as_fen.txt file.
+            After each move one of the following is returned:\n
+                -- winner: white\n
+                -- winner: black\n
+                -- stalemate\n
+                -- illegal move\n
+                -- Stockfish move following user's move in UCI notation. e.g. e7e5\n
+        """)
     )
     parser.add_argument(
         "move", type=str, help="Chess move in UCI notation (e.g., e2e4)"
