@@ -65,7 +65,7 @@ def move_and_evaluate(
 
     try:
         stockfish.make_moves_from_current_position([move])
-    except ValueError:
+    except Exception:
         return "illegal"
 
     new_fen_position = stockfish.get_fen_position()
@@ -108,7 +108,7 @@ def main():
                 -- winner: black\n
                 -- stalemate\n
                 -- illegal move\n
-                -- Stockfish move following user's move in UCI notation. e.g. e7e5\n
+                -- black move: Stockfish move following user's move in UCI notation. e.g. black move: e7e5\n
         """)
     )
     parser.add_argument(

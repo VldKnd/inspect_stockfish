@@ -1,7 +1,8 @@
-FROM ghcr.io/astral-sh/uv:debian
+FROM --platform=linux/amd64 ghcr.io/astral-sh/uv:debian
 
 COPY pyproject.toml pyproject.toml
 ENV PATH="/.venv/bin:${PATH}"
+RUN echo export PATH="/.venv/bin:${PATH}" >> ~/.profile
 ENV ROOT_PATH="/"
 
 RUN curl -L https://github.com/official-stockfish/Stockfish/releases/latest/download/stockfish-ubuntu-x86-64.tar --output stockfish.tar
