@@ -119,6 +119,10 @@ def main():
     # Init stockfish and set current chess board.
     stockfish = get_stockfish_engine()
     fen_position = get_current_fen_position()
+    if get_active_color(fen_position) == "b":
+        print("White shoud be making a move first. Aborting.")
+        return
+
     stockfish.set_fen_position(fen_position)
 
     users_move = args.move
