@@ -11,6 +11,7 @@
 #!/usr/bin/env python
 import logging
 import os
+import typing
 import argparse
 from stockfish import Stockfish
 
@@ -38,27 +39,60 @@ def get_stockfish_engine() -> Stockfish:
     return Stockfish(f"{root_path}/stockfish/stockfish")
 
 
-def make_a_move_or_raise_exception(
-    stockfish: Stockfish, suggested_move: str | None = None
-) -> str:
+def get_active_color(fen: str) -> str:
+    """
+    Extracts the active color from a FEN string.
+
+    Parameters:
+        fen (str): A valid FEN string.
+
+    Returns:
+        str: 'w' if it's White's turn, 'b' if it's Black's turn.
+
+    Raises:
+        ValueError: If the FEN string is invalid or doesn't contain an active color.
+    """
+    tokens = fen.strip().split()
+    if len(tokens) < 2:
+        raise ValueError("Invalid FEN string: not enough fields.")
+    active_color = tokens[1]
+    if active_color not in ("w", "b"):
+        raise ValueError("Invalid active color in FEN: must be 'w' or 'b'.")
+    return active_color
+
+
+def move_and_evaluate(
+    stockfish: Stockfish, move: str
+) -> typing.Literal["illegal", "white", "black", "stale", "move"]:
     inital_fen_position = stockfish.get_fen_position()
-    best_move_by_stockfish = stockfish.get_best_move()
-    if best_move_by_stockfish is None:
-        stockfish_evaluation = stockfish.get_evaluation()
-        if stockfish_evaluation and stockfish_evaluation.get("type") == "mate":
-            return "mate"
-        else:
-            return "stalemate"
-
-    move = suggested_move if suggested_move is not None else best_move_by_stockfish
     stockfish.make_moves_from_current_position([move])
-
     new_fen_position = stockfish.get_fen_position()
 
     if inital_fen_position == new_fen_position:
         return "illegal"
 
-    return move
+    if stockfish.get_best_move() is None:
+        stockfish_evaluation = stockfish.get_evaluation()
+
+        if stockfish_evaluation and stockfish_evaluation.get("type") == "mate":
+            active_color = get_active_color(new_fen_position)
+            if active_color == "b":
+                return "white"
+            else:
+                return "black"
+        else:
+            return "stale"
+
+    return "move"
+
+
+def print_decision(decision: typing.Literal["white", "black", "stale", "illegal"]):
+    if decision == "white" or decision == "black":
+        print(f"winner: {decision}")
+    elif decision == "stale":
+        print("stalemate")
+    else:
+        print("illegal move")
 
 
 def main():
@@ -77,45 +111,19 @@ def main():
     stockfish.set_fen_position(fen_position)
 
     # Apply the move provided by the user
-    move = make_a_move_or_raise_exception(
-        stockfish=stockfish, suggested_move=args.move
-    )
-
-    if move == "mate":
-        print("Winner: Engine")
+    users_move = args.move
+    evaluation_decision = move_and_evaluate(stockfish=stockfish, move=users_move)
+    if evaluation_decision != "move":
+        print_decision(decision=evaluation_decision)
         return
 
-    if move == "stalemate":
-        print("Stalemate")
+    stockfish_move = stockfish.get_best_move()
+    evaluation_decision = move_and_evaluate(stockfish=stockfish, move=stockfish_move)
+    if evaluation_decision != "move":
+        print_decision(decision=evaluation_decision)
         return
 
-    if move == "illegal":
-        print(f"Move {move} is not allowed.")
-        return
-
-    print("Model's move:")
-    print(stockfish.get_board_visual())
-    print()
-
-    # Make stockfish engine make a move
-    # Apply the move provided by the user
-    move = make_a_move_or_raise_exception(stockfish=stockfish)
-
-    if move == "mate":
-        print("Winner: Agent")
-        return
-
-    if move == "stalemate":
-        print("Stalemate")
-        return
-
-    if move == "illegal":
-        print(f"Move {move} by stockfish is not allowed.")
-        return
-
-    print("Stockfish's move:")
-    print(stockfish.get_board_visual())
-    print()
+    print(stockfish_move)
 
 
 if __name__ == "__main__":
