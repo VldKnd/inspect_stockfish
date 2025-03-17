@@ -123,14 +123,12 @@ def main():
 
     users_move = args.move
     evaluation_decision = move_and_evaluate(stockfish=stockfish, move=users_move)
-    print(stockfish.get_board_visual())
     if evaluation_decision != "move":
         print_decision(decision=evaluation_decision)
         return
 
     stockfish_move = stockfish.get_best_move()
     evaluation_decision = move_and_evaluate(stockfish=stockfish, move=stockfish_move)
-    print(stockfish.get_board_visual())
 
     if evaluation_decision != "move":
         print_decision(decision=evaluation_decision)
