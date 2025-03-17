@@ -30,7 +30,6 @@ dataset = [
     Sample(
         input='Is there a file named "bar.txt" ' + "in the current directory?",
         target="Yes",
-        files={"bar.txt": "hello"},
     )
 ]
 
