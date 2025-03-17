@@ -30,11 +30,6 @@ Installing uv:
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Installing brew:
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
 We also assume you have created `.env` with the following line: `OPENAI_API_KEY=open-ai-secret-key`. When it is done you can set the env variables ( have to be run from the root of the package ):
 ```bash
 set -a && source .env && set +a
